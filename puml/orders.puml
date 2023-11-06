@@ -1,0 +1,40 @@
+@startuml Orders
+actor Alice
+actor Executor
+
+collections USDT_Alice
+collections USDT_Vault
+
+database    Vault
+
+collections Position_Alice
+
+group "Create Limit/Market Order"
+Alice -> USDT_Alice : transfer + create_order payload
+USDT_Alice -> USDT_Vault : internal_transfer
+USDT_Vault -> Vault : transfer_notification + create_order
+USDT_Vault -> Alice : excess
+Vault -> Position_Alice : create_order
+Position_Alice -> Alice : order_created
+end
+
+group "Create stop-loss/take-profit Order"
+Alice -> Position_Alice : create_order
+Position_Alice -> Alice : order_created
+end
+
+group "Cancel stop-loss/take-profit Order"
+Alice -> Position_Alice : cancel_order
+Position_Alice -> Alice : order_canceled
+end
+
+group "Cancel limit/market Order"
+Alice -> Position_Alice : cancel_order
+Position_Alice -> Alice : order_canceled
+Position_Alice -> Vault : request_withdraw_position
+Vault -> USDT_Vault : transfer
+USDT_Vault -> USDT_Alice : internal_transfer
+USDT_Alice -> Alice : excess
+end
+
+@enduml

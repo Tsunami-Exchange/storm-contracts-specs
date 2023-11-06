@@ -1,0 +1,30 @@
+@startuml Position Operations
+actor Alice
+
+collections USDT_Alice
+collections USDT_Vault
+
+database    Vault
+
+collections Position_Alice
+
+participant AMM
+
+
+group "Add margin"
+
+Alice -> USDT_Alice : transfer + add_margin payload
+USDT_Alice -> USDT_Vault : internal_transfer
+USDT_Vault -> Vault : transfer_notification (add_margin)
+USDT_Vault -> Alice : excess
+Vault -> Position_Alice : provide_position (add_margin)
+Position_Alice -> AMM : take_position (add_margin)
+AMM -> Position_Alice : update_position
+Position_Alice -> Alice : excess
+AMM -> Vault : trade_notification
+Vault -> Alice : excess
+
+end
+
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml Position Operations
+actor Alice
+
+collections USDT_Alice
+collections USDT_Vault
+
+collections ReferralNFT
+
+database    Vault
+
+
+collections Position_Alice
+
+participant AMM
+
+group "Close position"
+
+Alice -> Position_Alice : provide_position (close_position)
+Position_Alice -> AMM : take_position (close_position)
+AMM -> Position_Alice : update_position
+AMM -> Vault : trade_notification
+Position_Alice -> Alice : excess
+Vault -> USDT_Vault : transfer
+USDT_Vault -> USDT_Alice : internal_transfer
+USDT_Alice -> Alice : excess
+
+end
+
+group "Close position (with Referral)"
+
+Alice -> Position_Alice : provide_position (close_position)
+Position_Alice -> AMM : take_position (close_position)
+AMM -> Position_Alice : update_position
+AMM -> Vault : trade_notification
+Position_Alice -> Alice : excess
+Vault -> USDT_Vault : transfer
+Vault -> ReferralNFT : add_referral_amount
+USDT_Vault -> USDT_Alice : internal_transfer
+USDT_Alice -> Alice : excess
+ReferralNFT -> Alice : excess
+
+end
+
+@enduml

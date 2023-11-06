@@ -1,0 +1,186 @@
+// https://ton.org/docs/#/overviews/TL-B
+// base types defined in https://github.com/ton-blockchain/ton/blob/master/crypto/block/block.tlb
+
+//
+// Position manager
+//
+
+long$0 = Direction
+short$1 = Direction
+
+position#_ size:int128 direction:Direction 
+  margin:Coins open_notional:Coins 
+  last_updated_cumulative_premium:Coins 
+  fee:uint32 discount:uint32 rebate:uint32 
+  last_updated_timestamp:uint32 = PositionData
+
+stop_loss_order$0000 expiration:uint32 direction:Direction amount:Coins triger_price:Coins = SLTPOrder
+
+take_profit_order$0001 expiration:uint32 direction:Direction amount:Coins triger_price:Coins = SLTPOrder
+
+stop_limit_order$0010 expiration:uint32 direction:Direction 
+  amount:Coins leverage:uint64 
+  limit_price:Coins stop_price:Coins 
+  stop_triger_price:Coins take_triger_price:Coins = LimitMarketOrder
+
+market_order$0011 expiration:uint32 direction:Direction 
+  amount:Coins leverage:uint64 
+  limit_price:Coins stop_price:Coins 
+  stop_triger_price:Coins take_triger_price:Coins = LimitMarketOrder
+
+_ sltp_order:SLTPOrder = Order
+_ limit_market_order:LimitMarketOrder = Order
+
+position_orders#_ orders:(Hashmap 3 ^SLTPOrder) = PositionOrders
+
+position_record#_ locked:uint1 redirect_addr:MsgAddress 
+  position_orders_bitset:uint8 position_orders:PositionOrders 
+  edgelock:uint32 position_ref:^PositionData = PositionRecord
+
+position_referral_data#_ referral_addr:MsgAddress discount:uint32 rebate:uint32 rest:Cell = PositionReferralData
+
+position_manager_data#_ trader_addr:MsgAddress vault_addr:MsgAddress vamm_addr:MsgAddress
+  long_record:(Maybe ^PositionData) short_record:(Maybe ^PositionData)
+  referral_data:(Maybe ^PositionReferralData) 
+  orders_dict:(Hashmap 3 ^LimitMarketOrder) orders_bitset:uint8 = PositionManagerData
+
+
+// TODO: describe signatures cell later
+signatures#_ data:Cell = Signatures
+price_data#_ price:Coins spread:Coins spread:uint32 asset_id:uint16 = OraclePriceData
+oracle_payload#_ price_data:^OraclePriceData signatures:^Signatures = OraclePayload
+
+increase_extra_payload#_ leverage:uint32 min_base_asset_amount:Coins stop_trigger_price:Coins take_trigger_price:Coins = IncreaseExtraPayload
+increase_position_payload#a55bf923 jetton_amount:Coins oracle_payload:^OraclePayload increase_extra_payload:^IncreaseExtraPayload = ProvidePositionForwardPayload
+
+add_margin_payload#b9e810e2 jetton_amount:Coins oracle_payload:^OraclePayload = ProvidePositionForwardPayload
+
+remove_margin_payload#ecded426 amount:Coins oracle_payload:^OraclePayload = ProvidePositionForwardPayload
+
+close_extra_payload#_ size:int128 min_quote_asset_amount:Coins add_to_margin:uint1 = CloseExtraPayload
+close_position_payload#5cc03add amount:Coins oracle_payload:^OraclePayload close_extra_payload:^CloseExtraPayload = ProvidePositionForwardPayload
+
+liquidate_payload#cc52bae3 executor_index:uint32 oracle_payload:^OraclePayload = ProvidePositionForwardPayload
+
+force_close_position_payload#23c4cf69 executor_index:uint32 oracle_payload:^OraclePayload = ProvidePositionForwardPayload
+
+amm_state_log#_ quote_asset_reserve:Coins quote_asset_weight:Coins 
+  base_asset_reserve:Coins 
+  total_long_position_size:Coins total_short_position_size:Coins 
+  open_interest_long:Coins open_interest_short:Coins = AmmStateLog
+
+//
+// position in msg
+//
+
+provide_position#13076670 direction:Direction gas_to_addr:MsgAddress provide_position_forward_payload:ProvidePositionForwardPayload  = InternalMsgBody
+
+provide_order#8865b402 order_type:uint4 order_index:uint3 direction:Direction executor_index:uint32 oracle_payload:^OraclePayload = InternalMsgBody
+
+update_position#60dfc677 direction:Direction origin_op:uint32 oracle_price:Coins new_position_ref:^PositionData amm_state_log:^AmmStateLog = InternalMsgBody
+
+update_position_with_stop_loss#5d1b17b8 direction:Direction stop_trigger_price:Coins take_trigger_price:Coins origin_op:uint32 oracle_price:Coins new_position_ref:^PositionData amm_state_log:^AmmStateLog = InternalMsgBody
+
+create_order_stop_loss_payload$0000 gas_to_addr:MsgAddress order:^SLTPOrder = CreateSLTPOrderPayload
+create_order_take_profit_payload$0001 gas_to_addr:MsgAddress order:^SLTPOrder = CreateSLTPOrderPayload
+
+create_limit_market_content#_ leverage:uint64 expiration:uint32 direction:Direction limit_price:Coins stop_price:Coins stop_triger_price:Coins take_triger_price:Coins = CreateLimitMarketContent
+
+create_order_stop_limit_payload$0010 gas_to_addr:MsgAddress amount:Coins content:^CreateLimitMarketContent  = CreateLimitMarketOrderPayload
+create_order_stop_market_payload$0011 gas_to_addr:MsgAddress amount:Coins content:^CreateLimitMarketContent  = CreateLimitMarketOrderPayload
+
+create_sltp_market_order_payload#_ payload:CreateSLTPOrderPayload = CreateOrderPayload
+create_limit_market_order_payload#_ payload:CreateLimitMarketOrderPayload = CreateOrderPayload
+
+create_order#a39843f4 create_order_payload:CreateOrderPayload = InternalMsgBody
+
+complete_order#cf90d618 order_type:uint4 order_index:uint3 direction:Direction origin_op:uint32 oracle_price:Coins new_position_ref:^PositionData amm_state_log:^AmmStateLog = InternalMsgBody
+
+activate_order#9d2ec640 order_index:uint3 direction:Direction activated_order:^LimitMarketOrder = InternalMsgBody
+
+cancel_order#67134629 order_type:uint4 order_index:uint3 direction:Direction gas_to_addr:MsgAddress = InternalMsgBody
+
+init_position_create_order_forward_body#_ create_order#a39843f4 create_order_payload:CreateLimitMarketOrderPayload  = InitPositionForwardBody
+
+init_position_increase_forward_body#_ provide_position#13076670 direction:Direction gas_to_addr:MsgAddress provide_position_forward_payload:(increase_position_payload#a55bf923 jetton_amount:Coins oracle_payload:^OraclePayload increase_extra_payload:^IncreaseExtraPayload)  = InitPositionForwardBody
+
+init_position_manager#6e3c4f09 referral_addr:MsgAddress forward_body:InitPositionForwardBody = InternalMsgBody
+
+take_referral_fees#12d9601d fees:^(discount:uint32 rebate:uint32) = InternalMsgBody
+
+//
+// position out msg
+//
+order_created#3a943ce6 = InternalMsgBody
+order_canceled#69d08679 = InternalMsgBody
+
+request_withdraw_position#226df66 trader_addr:MsgAddress vamm_addr:MsgAddress amount:Coins gas_to_addr:MsgAddress withdraw_reason:uint32  = InternalMsgBody
+
+//
+// vAMM
+//
+
+amm_state#_ quote_asset_reserve:Coins base_asset_reserve:Coins quote_asset_weight:uint64
+  total_long_position_size:Coins total_short_position_size:Coins
+  open_interest_long:Coins open_interest_short:Coins
+  latest_long_cumulative_premium_fraction:uint64 latest_short_cumulative_premium_fraction:uint64 = AmmState
+
+exchange_settings#_ fee:uint32 rollover_fee:uint32 funding_period:uint32 init_margin_ratio:uint32 
+  maintenance_margin_ratio:uint32 liquidation_fee_ratio:uint32 partial_liquidation_ratio:uint32 spread_limit:uint32 
+  max_price_impact:uint32 max_price_spread:uint32 max_open_notional:Coins fee_to_stakers_percent:uint32 fundingMode:uint2 minPartialLiquidationNotional:Coins minInitMarginRatio:uint32 = ExchangeSettings
+
+
+// TODO:
+oracle_public_keys#_ keys:Cell = OraclePublicKeys
+
+vamm_data#_ balance:Coins vault_addr:MsgAddress asset_id:uint16 close_only:uint1 paused:uint1 
+  oracle_last_price:Coins oracle_last_spread:Coins oracle_last_timestamp:uint32 oracle_max_deviation:Coins oracle_validity_period:uint32
+  oracle_public_keys_count:uint4 amm_state:^AmmState exchange_settings:^ExchangeSettings oracle_public_keys_ref:^OraclePublicKeys = VammData
+
+//
+// in msg
+//
+
+referral_params#_ referral_amount:Coins referral_addr:MsgAddress = NotificationReferralParams
+executor_params#_ split_executor_reward:uint1 executor_amount:Coins executor_index:uint32 = NotificationExecutorParams
+
+trade_notification#3475fdd2 asset_id:uint16 free_amount:int64 locked_amount:int64 exchange_amount:int64 
+  withdraw_locked_amount:uint64 fee_to_stakers:uint64 withdraw_amount:uint64 trader_addr:MsgAddress origin_addr:MsgAddress
+  referral_data:(Maybe ^NotificationReferralParams) executor_params:(Maybe ^NotificationExecutorParams) = InternalMsgBody
+
+take_position#72c33991 direction:Direction position:^PositionData forward_payload:ProvidePositionForwardPayload
+  trader_addr:MsgAddress gas_to_addr:MsgAddress ref_addr:MsgAddress = InternalMsgBody
+
+execute_order#de1ddbcc direction:Direction order_index:uint3
+  trader_addr:MsgAddress prev_addr:MsgAddress ref_addr:MsgAddress 
+  executor_index:uint32 order:^Order position:^PositionData oracle_payload:^OraclePayload = InternalMsgBody
+
+//
+// Vault
+//
+
+vault_addresses#_ addrs:(Hashmap 4 MsgAddress) =  VaultAddresses
+
+vault_data#_ jetton_wallet:MsgAddress rate:uint64 total_supply:Coins free_balance:Coins locked_balance:Coins withdraw_locked_balance:uint64
+  stakers_balance:Coins executors_balance:Coins extra_addrs_dict:VaultAddresses = VaultData
+
+//
+// in msg
+//
+
+vault_increase_payload#a55bf923 asset_id:uint16 direction:Direction 
+  init_position_account:uint1 gas_to_addr:MsgAddress 
+  referral_index:(Maybe uint64) oracle_payload:^OraclePayload increase_extra_payload:^IncreaseExtraPayload = VaultForwardPayload
+
+vault_add_margin_payload#b9e810e2 asset_id:uint16 direction:Direction gas_to_addr:MsgAddress oracle_payload:^OraclePayload = VaultForwardPayload
+
+vault_create_order_payload#a39843f4 asset_id:uint16 order_type:uint4 direction:Direction gas_to_addr:MsgAddress
+  init_position_account:(Maybe (referral_index:(Maybe uint64))) content:^CreateLimitMarketContent = VaultForwardPayload
+
+vault_stake_payload#c89a3ee4 = VaultForwardPayload
+
+transfer_notification#7362d09c query_id:uint64 jetton_amount:Coins from_addr:MsgAddress payload:VaultForwardPayload = InternalMsgBody
+
+unstake#d5b5e9ad lp_amount:Coins user_addr:MsgAddress = InternalMsgBody
+
+// TODO: add admin, referral and executor msgs

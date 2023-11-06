@@ -1,0 +1,45 @@
+@startuml Liquidator flow
+
+actor Alice
+
+actor Liquidator
+
+collections Liquidator_NFT
+collections Referral_NFT
+
+collections USDT_Alice
+collections USDT_Vault
+
+collections Position_Alice
+
+database    Vault
+
+participant AMM
+
+group "Liquidation"
+
+Liquidator -> Position_Alice : provide_position (liquidate)
+Position_Alice -> AMM : take_position (liquidate)
+AMM -> Vault : trade_notification
+AMM -> Position_Alice : update_position
+Position_Alice -> Liquidator : excess
+Vault -> Liquidator_NFT : add_executor_amount
+Liquidator_NFT -> Liquidator : excess
+
+end
+
+group "Liquidation (with referral)"
+
+Liquidator -> Position_Alice : provide_position (liquidate)
+Position_Alice -> AMM : take_position (liquidate)
+AMM -> Vault : trade_notification
+AMM -> Position_Alice : update_position
+Position_Alice -> Liquidator : excess
+Vault -> Liquidator_NFT : add_executor_amount
+Vault -> Referral_NFT : add_referral_amount
+Liquidator_NFT -> Liquidator : excess
+Referral_NFT -> Liquidator : excess
+
+end
+
+@enduml

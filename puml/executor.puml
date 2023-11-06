@@ -1,0 +1,82 @@
+@startuml Executor flow
+
+actor Alice
+
+actor Executor
+
+collections Executor_NFT
+collections Referral_NFT
+
+collections USDT_Alice
+collections USDT_Vault
+
+
+collections Position_Alice
+
+
+database    Vault
+
+participant AMM
+
+group "Execute limit/market Order"
+
+Executor -> Position_Alice : provide_order
+Position_Alice -> AMM : take_order
+AMM -> Vault : trade_notification
+AMM -> Position_Alice : complete_order/activate_order
+Position_Alice -> Executor : excess
+Vault -> Executor_NFT : add_executor_amount
+Executor_NFT -> Executor : excess
+
+end
+
+group "Execute limit/market Order (with Referral)"
+
+Executor -> Position_Alice : provide_order
+Position_Alice -> AMM : take_order
+AMM -> Vault : trade_notification
+AMM -> Position_Alice : complete_order/activate_order
+Position_Alice -> Executor : excess
+Vault -> Executor_NFT : add_executor_amount
+Vault -> Referral_NFT : add_referral_amount
+Executor_NFT -> Executor : excess
+Referral_NFT -> Executor : excess
+
+end
+
+group "Execute stop-loss/take-profit Order"
+Executor -> Position_Alice : provide_order
+Position_Alice -> AMM : take_order
+AMM -> Vault : trade_notification
+AMM -> Position_Alice : complete_order/activate_order
+Position_Alice -> Executor : excess
+
+Vault -> USDT_Vault : transfer
+USDT_Vault -> USDT_Alice : internal_transfer
+USDT_Alice -> Executor : excess
+
+Vault -> Executor_NFT : add_executor_amount
+Executor_NFT -> Executor : excess
+
+end
+
+group "Execute stop-loss/take-profit Order (with Referral)"
+Executor -> Position_Alice : provide_order
+Position_Alice -> AMM : take_order
+AMM -> Vault : trade_notification
+AMM -> Position_Alice : complete_order/activate_order
+Position_Alice -> Executor : excess
+
+Vault -> USDT_Vault : transfer
+USDT_Vault -> USDT_Alice : internal_transfer
+USDT_Alice -> Executor : excess
+
+Vault -> Executor_NFT : add_executor_amount
+Executor_NFT -> Executor : excess
+
+Vault -> Referral_NFT : add_referral_amount
+Referral_NFT -> Executor : excess
+
+end
+
+@enduml
