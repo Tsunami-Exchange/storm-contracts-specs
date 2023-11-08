@@ -21,7 +21,7 @@ participant AMM
 group "Execute limit/market Order"
 
 Executor -> Position_Alice : provide_order
-Position_Alice -> AMM : take_order
+Position_Alice -> AMM : execute_order
 AMM -> Vault : trade_notification
 AMM -> Position_Alice : complete_order/activate_order
 Position_Alice -> Executor : excess
@@ -33,7 +33,7 @@ end
 group "Execute limit/market Order (with Referral)"
 
 Executor -> Position_Alice : provide_order
-Position_Alice -> AMM : take_order
+Position_Alice -> AMM : execute_order
 AMM -> Vault : trade_notification
 AMM -> Position_Alice : complete_order/activate_order
 Position_Alice -> Executor : excess
@@ -46,7 +46,7 @@ end
 
 group "Execute stop-loss/take-profit Order"
 Executor -> Position_Alice : provide_order
-Position_Alice -> AMM : take_order
+Position_Alice -> AMM : execute_order
 AMM -> Vault : trade_notification
 AMM -> Position_Alice : complete_order/activate_order
 Position_Alice -> Executor : excess
@@ -62,7 +62,7 @@ end
 
 group "Execute stop-loss/take-profit Order (with Referral)"
 Executor -> Position_Alice : provide_order
-Position_Alice -> AMM : take_order
+Position_Alice -> AMM : execute_order
 AMM -> Vault : trade_notification
 AMM -> Position_Alice : complete_order/activate_order
 Position_Alice -> Executor : excess
