@@ -1,0 +1,20 @@
+{
+  "name": "storm-contracts-specs",
+  "version": "1.0.0",
+  "description": "Storm contracts specifications",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "render-schemas": "ts-node scripts/render-schemas"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "fs": "^0.0.1-security",
+    "node-plantuml": "^0.9.0",
+    "path": "^0.12.7",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
