@@ -10,7 +10,7 @@ short$1 = Direction
 
 position#_ size:int128 direction:Direction 
   margin:Coins open_notional:Coins 
-  last_updated_cumulative_premium:Coins 
+  last_updated_cumulative_premium:int64
   fee:uint32 discount:uint32 rebate:uint32 
   last_updated_timestamp:uint32 = PositionData
 
@@ -44,10 +44,9 @@ position_manager_data#_ trader_addr:MsgAddress vault_addr:MsgAddress vamm_addr:M
   referral_data:(Maybe ^PositionReferralData) 
   orders_dict:(Hashmap 3 ^LimitMarketOrder) orders_bitset:uint8 = PositionManagerData
 
-
 // TODO: describe signatures cell later
 signatures#_ data:Cell = Signatures
-price_data#_ price:Coins spread:Coins spread:uint32 asset_id:uint16 = OraclePriceData
+price_data#_ price:Coins spread:Coins timestamp:uint32 asset_id:uint16 = OraclePriceData
 oracle_payload#_ price_data:^OraclePriceData signatures:^Signatures = OraclePayload
 
 increase_extra_payload#_ leverage:uint32 min_base_asset_amount:Coins stop_trigger_price:Coins take_trigger_price:Coins = IncreaseExtraPayload
