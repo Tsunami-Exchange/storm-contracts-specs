@@ -1,4 +1,4 @@
-# Vault
+## Vault
 
 ```
 cell get_vault_contract_data()
@@ -71,7 +71,7 @@ Returns the Executor Collection address.
 
 ---
 
-# Position Manager
+## Position Manager
 
 ```
 cell get_position_manager_contract_data()
@@ -94,9 +94,15 @@ Returns:
 - `referral_data`. Position's referral data. Empty if contract is not inited. Empty cell if null.
 - `orders_bitset`. Limit/market orders bitset.
 
+```
+int get_version()
+```
+
+Returns contract's version.
+
 ---
 
-# vAMM
+## vAMM
 
 ```
 cell get_amm_contract_data()

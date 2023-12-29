@@ -35,7 +35,7 @@ position_orders#_ orders:(Hashmap 3 ^SLTPOrder) = PositionOrders
 
 position_record#_ locked:uint1 redirect_addr:MsgAddress 
   position_orders_bitset:uint8 position_orders:PositionOrders 
-  edgelock:uint32 position_ref:^PositionData = PositionRecord
+  position_ref:^PositionData = PositionRecord
 
 position_referral_data#_ referral_addr:MsgAddress discount:uint32 rebate:uint32 rest:Cell = PositionReferralData
 
@@ -103,7 +103,7 @@ init_position_create_order_forward_body#_ create_order#a39843f4 create_order_pay
 
 init_position_increase_forward_body#_ provide_position#13076670 direction:Direction gas_to_addr:MsgAddress provide_position_forward_payload:(increase_position_payload#a55bf923 jetton_amount:Coins oracle_payload:^OraclePayload increase_extra_payload:^IncreaseExtraPayload)  = InitPositionForwardBody
 
-init_position_manager#6e3c4f09 referral_addr:MsgAddress forward_body:InitPositionForwardBody = InternalMsgBody
+init_position_manager#6e3c4f09 maybe_new_code:(Maybe ^Cell) referral_addr:MsgAddress forward_body:InitPositionForwardBody = InternalMsgBody
 
 take_referral_fees#12d9601d fees:^(discount:uint32 rebate:uint32) = InternalMsgBody
 
