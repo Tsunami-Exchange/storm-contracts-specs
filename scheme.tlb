@@ -46,7 +46,7 @@ position_manager_data#_ trader_addr:MsgAddress vault_addr:MsgAddress vamm_addr:M
 
 // TODO: describe signatures cell later
 signatures#_ data:Cell = Signatures
-price_data#_ price:Coins spread:Coins timestamp:uint32 asset_id:uint16 = OraclePriceData
+price_data#_ price:Coins spread:Coins timestamp:uint32 asset_id:uint16 pause_at:uint32 unpause_at:uint spread:Coins market_depth_long:Coins market_depth_short:Coins k:uint64 = OraclePriceData
 oracle_payload#_ price_data:^OraclePriceData signatures:^Signatures = OraclePayload
 
 increase_extra_payload#_ leverage:uint32 min_base_asset_amount:Coins stop_trigger_price:Coins take_trigger_price:Coins = IncreaseExtraPayload
