@@ -76,7 +76,7 @@ provide_position#13076670 direction:Direction gas_to_addr:MsgAddress provide_pos
 
 provide_order#8865b402 order_type:uint4 order_index:uint3 direction:Direction executor_index:uint32 oracle_payload:^OraclePayload = InternalMsgBody
 
-update_position#60dfc677 direction:Direction origin_op:uint32 oracle_price:Coins new_position_ref:^PositionData amm_state_log:^AmmStateLog = InternalMsgBody
+update_position#60dfc677 direction:Direction origin_op:uint32 oracle_price:Coins settlement_oracle_price:Coins new_position_ref:^PositionData amm_state_log:^AmmStateLog = InternalMsgBody
 
 update_position_with_stop_loss#5d1b17b8 direction:Direction stop_trigger_price:Coins take_trigger_price:Coins origin_op:uint32 oracle_price:Coins new_position_ref:^PositionData amm_state_log:^AmmStateLog = InternalMsgBody
 
@@ -93,7 +93,7 @@ create_limit_market_order_payload#_ payload:CreateLimitMarketOrderPayload = Crea
 
 create_order#a39843f4 create_order_payload:CreateOrderPayload = InternalMsgBody
 
-complete_order#cf90d618 order_type:uint4 order_index:uint3 direction:Direction origin_op:uint32 oracle_price:Coins new_position_ref:^PositionData amm_state_log:^AmmStateLog = InternalMsgBody
+complete_order#cf90d618 order_type:uint4 order_index:uint3 direction:Direction origin_op:uint32 oracle_price:Coins settlement_oracle_price:Coins new_position_ref:^PositionData amm_state_log:^AmmStateLog = InternalMsgBody
 
 activate_order#9d2ec640 order_index:uint3 direction:Direction activated_order:^LimitMarketOrder = InternalMsgBody
 
